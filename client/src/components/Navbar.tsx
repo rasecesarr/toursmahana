@@ -16,6 +16,9 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [location] = useLocation();
 
+  const isLightTop = location === "/nosotros" || location === "/not-found";
+  const isScrolledOrLight = scrolled || isLightTop;
+
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", onScroll);
@@ -27,9 +30,11 @@ export default function Navbar() {
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
+        scrolled || open
           ? "bg-white/95 backdrop-blur-md shadow-md"
-          : "bg-transparent"
+          : isLightTop 
+            ? "bg-white/95 backdrop-blur-md shadow-sm"
+            : "bg-transparent"
       }`}
     >
       <div className="container flex items-center justify-between h-16 md:h-20">
@@ -39,7 +44,7 @@ export default function Navbar() {
           <div className="flex flex-col leading-tight">
             <span
               className={`text-lg font-bold tracking-tight transition-colors ${
-                scrolled ? "text-deep-blue" : "text-white"
+                isScrolledOrLight || open ? "text-deep-blue" : "text-white"
               }`}
               style={{ fontFamily: "var(--font-display)" }}
             >
@@ -47,7 +52,7 @@ export default function Navbar() {
             </span>
             <span
               className={`text-[10px] uppercase tracking-[0.2em] transition-colors ${
-                scrolled ? "text-gold-dark" : "text-gold-light"
+                isScrolledOrLight || open ? "text-gold-dark" : "text-gold-light"
               }`}
             >
               Riviera del Pacífico
@@ -63,8 +68,8 @@ export default function Navbar() {
               href={link.href}
               className={`text-sm font-medium transition-colors hover:text-gold ${
                 location === link.href
-                  ? scrolled ? "text-gold-dark" : "text-gold"
-                  : scrolled ? "text-deep-blue" : "text-white/90"
+                  ? isScrolledOrLight ? "text-gold-dark" : "text-gold"
+                  : isScrolledOrLight ? "text-deep-blue" : "text-white/90"
               }`}
             >
               {link.label}
@@ -84,7 +89,7 @@ export default function Navbar() {
         <button
           onClick={() => setOpen(!open)}
           className={`md:hidden p-2 rounded-lg transition-colors ${
-            scrolled ? "text-deep-blue" : "text-white"
+            isScrolledOrLight || open ? "text-deep-blue" : "text-white"
           }`}
         >
           {open ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}

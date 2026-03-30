@@ -62,10 +62,6 @@ export default function TourDetail() {
   return (
     <div className="min-h-screen bg-sand">
       <Navbar />
-      <Breadcrumbs crumbs={[
-        { label: "Tours", href: "/tours" },
-        { label: tour.name },
-      ]} />
       <StickyCTA label={tour.name} price={tour.price} whatsappLink={tourWhatsApp} />
 
       {/* ═══════════════ HERO ═══════════════ */}

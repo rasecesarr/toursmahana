@@ -183,7 +183,7 @@ export default function Home() {
                 >
                   <img src={cat.image} alt={cat.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                  <div className="absolute bottom-0 left-0 right-0 p-8">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-8 h-8 rounded-full bg-gold/90 flex items-center justify-center text-deep-blue">
                         {CATEGORY_ICONS[cat.id]}
@@ -230,7 +230,7 @@ export default function Home() {
                       </div>
                     )}
                   </div>
-                  <div className="p-4">
+                  <div className="p-6">
                     <h3 className="font-bold text-deep-blue text-base mb-1" style={{ fontFamily: "var(--font-display)" }}>{tour.name}</h3>
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{tour.shortDescription}</p>
                     <div className="flex items-center justify-between">
