@@ -10,6 +10,8 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "client", "src"),
       "@shared": path.resolve(import.meta.dirname, "shared"),
       "@assets": path.resolve(import.meta.dirname, "attached_assets"),
+      "@db": path.resolve(import.meta.dirname, "server", "db"),
+      "@server": path.resolve(import.meta.dirname, "server"),
     },
   },
   envDir: path.resolve(import.meta.dirname),
@@ -22,5 +24,15 @@ export default defineConfig({
     port: 3000,
     strictPort: false,
     host: true,
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:5001",
+        changeOrigin: true,
+      },
+      "/uploads": {
+        target: "http://127.0.0.1:5001",
+        changeOrigin: true,
+      },
+    },
   },
 });

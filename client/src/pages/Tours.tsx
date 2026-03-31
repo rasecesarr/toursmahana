@@ -3,10 +3,12 @@ import { useState, useMemo } from "react";
 import { Link, useSearch } from "wouter";
 import { motion } from "framer-motion";
 import { Clock, Users, MapPin, Search, Filter, ArrowRight, Star, Bed, DollarSign } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { IMAGES, CATEGORIES, ALL_TOURS, WHATSAPP_URL } from "@/lib/data";
+import { IMAGES, WHATSAPP_URL } from "@/lib/data";
+import { Tour, Category } from "@server/db/schema";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -24,9 +26,12 @@ export default function Tours() {
   const [maxPrice, setMaxPrice] = useState(1000);
   const [durationFilter, setDurationFilter] = useState<string>("all");
 
+  const { data: allTours = [] } = useQuery<Tour[]>({ queryKey: ["/api/tours"] });
+  const { data: categories = [] } = useQuery<Category[]>({ queryKey: ["/api/categories"] });
+
   // Filter out boat tours (they have their own page)
-  const nonBoatCategories = CATEGORIES.filter(c => !c.id.startsWith("botes"));
-  const nonBoatTours = ALL_TOURS.filter(t => !t.category.startsWith("botes"));
+  const nonBoatCategories = categories.filter(c => !c.id.startsWith("botes"));
+  const nonBoatTours = allTours.filter(t => !t.category.startsWith("botes"));
 
   const filtered = useMemo(() => {
     let tours = nonBoatTours;
@@ -176,7 +181,7 @@ export default function Tours() {
                     <div className="relative h-52 overflow-hidden">
                       <img src={tour.image} alt={tour.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                       <div className="absolute top-3 left-3 px-3 py-1 bg-gold/90 text-deep-blue text-xs font-semibold rounded-full">
-                        {CATEGORIES.find(c => c.id === tour.category)?.shortName}
+                        {categories.find((c: Category) => c.id === tour.category)?.shortName}
                       </div>
                       {tour.difficulty && (
                         <div className="absolute top-3 right-3 px-3 py-1 bg-white/90 text-deep-blue text-xs font-semibold rounded-full">

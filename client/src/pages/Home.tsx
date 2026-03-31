@@ -4,11 +4,13 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowRight, Star, Clock, Users, MapPin, Sun, Waves, Mountain, Ship, Anchor, Zap, Bed, ChevronDown } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
 import DestinationMap from "@/components/DestinationMap";
-import { IMAGES, CATEGORIES, ALL_TOURS, WHATSAPP_URL } from "@/lib/data";
+import { IMAGES, WHATSAPP_URL } from "@/lib/data";
+import { Tour, Category } from "@server/db/schema";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -41,7 +43,10 @@ const FEATURED_IDS = [
 ];
 
 export default function Home() {
-  const featured = FEATURED_IDS.map((id) => ALL_TOURS.find((t) => t.id === id)).filter(Boolean);
+  const { data: allTours = [] } = useQuery<Tour[]>({ queryKey: ["/api/tours"] });
+  const { data: categories = [] } = useQuery<Category[]>({ queryKey: ["/api/categories"] });
+
+  const featured = FEATURED_IDS.map((id) => allTours.find((t) => t.id === id)).filter((t): t is Tour => !!t);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   useEffect(() => {
@@ -171,7 +176,7 @@ export default function Home() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {CATEGORIES.map((cat, i) => (
+            {categories.map((cat: Category, i) => (
               <motion.div
                 key={cat.id}
                 initial="hidden" whileInView="visible" viewport={{ once: true }}
@@ -222,7 +227,7 @@ export default function Home() {
                   <div className="relative h-48 overflow-hidden">
                     <img src={tour.image} alt={tour.name} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute top-3 left-3 px-3 py-1 bg-gold/90 text-deep-blue text-xs font-semibold rounded-full">
-                      {CATEGORIES.find(c => c.id === tour.category)?.shortName}
+                      {categories.find((c: Category) => c.id === tour.category)?.shortName}
                     </div>
                     {tour.available !== "Todo el año" && (
                       <div className="absolute top-3 right-3 px-3 py-1 bg-deep-blue/80 text-white text-xs font-semibold rounded-full">

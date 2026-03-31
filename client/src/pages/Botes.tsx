@@ -5,17 +5,19 @@ import { Clock, Users, ArrowRight, Anchor, Wifi, Wind, UtensilsCrossed, Music, S
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { IMAGES, ALL_TOURS, WHATSAPP_URL } from "@/lib/data";
-
+import { IMAGES, WHATSAPP_URL } from "@/lib/data";
+import { useQuery } from "@tanstack/react-query";
+import { Tour } from "@server/db/schema";
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }),
 };
 
-const sthamasTours = ALL_TOURS.filter((t) => t.category === "botes-sthamas");
-const rampageTours = ALL_TOURS.filter((t) => t.category === "botes-rampage");
-
 export default function Botes() {
+  const { data: allTours = [] } = useQuery<Tour[]>({ queryKey: ["/api/tours"] });
+  const sthamasTours = allTours.filter((t: Tour) => t.category === "botes-sthamas");
+  const rampageTours = allTours.filter((t: Tour) => t.category === "botes-rampage");
+
   return (
     <div className="min-h-screen bg-sand">
       <Navbar />

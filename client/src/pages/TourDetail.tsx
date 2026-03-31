@@ -7,7 +7,9 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import StickyCTA from "@/components/StickyCTA";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { ALL_TOURS, CATEGORIES, IMAGES, WHATSAPP_URL } from "@/lib/data";
+import { IMAGES, WHATSAPP_URL } from "@/lib/data";
+import { useQuery } from "@tanstack/react-query";
+import { Tour, Category } from "@server/db/schema";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -36,7 +38,11 @@ const GALLERY_IMAGES: Record<string, string[]> = {
 
 export default function TourDetail() {
   const { id } = useParams<{ id: string }>();
-  const tour = ALL_TOURS.find((t) => t.id === id);
+
+  const { data: allTours = [] } = useQuery<Tour[]>({ queryKey: ["/api/tours"] });
+  const { data: categories = [] } = useQuery<Category[]>({ queryKey: ["/api/categories"] });
+
+  const tour = allTours.find((t) => t.id === id);
 
   if (!tour) {
     return (
@@ -49,12 +55,12 @@ export default function TourDetail() {
     );
   }
 
-  const category = CATEGORIES.find((c) => c.id === tour.category);
+  const category = categories.find((c) => c.id === tour.category);
   const quote = QUOTES[tour.category] || QUOTES["premium"];
   const gallery = GALLERY_IMAGES[tour.category] || GALLERY_IMAGES["premium"];
 
   // Related tours (same category, different tour)
-  const related = ALL_TOURS.filter((t) => t.category === tour.category && t.id !== tour.id).slice(0, 3);
+  const related = allTours.filter((t) => t.category === tour.category && t.id !== tour.id).slice(0, 3);
 
   const whatsappMsg = `Hola! Me interesa el tour "${tour.name}" ($${tour.price}/persona). ¿Tienen disponibilidad?`;
   const tourWhatsApp = `${WHATSAPP_URL}&text=${encodeURIComponent(whatsappMsg)}`;
