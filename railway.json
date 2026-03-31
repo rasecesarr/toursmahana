@@ -5,7 +5,7 @@
     "buildCommand": "pnpm install && pnpm run build"
   },
   "deploy": {
-    "startCommand": "pnpm run start",
+    "startCommand": "pnpm run db:push && pnpm run seed && pnpm run start",
     "healthCheckPath": "/",
     "restartPolicyType": "ON_FAILURE",
     "numReplicas": 1

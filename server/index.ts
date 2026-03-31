@@ -63,6 +63,14 @@ async function startServer() {
     res.sendFile(indexPath);
   });
 
+  // Global Error Handler for API routes
+  app.use((err: any, _req: express.Request, res: express.Response, _next: any) => {
+    console.error("[ERROR]", err);
+    const status = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    res.status(status).json({ message });
+  });
+
   const port = process.env.PORT || 5001;
   const host = "0.0.0.0"; // Importante para Railway/Docker
 
