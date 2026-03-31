@@ -28,6 +28,7 @@ export function setupRoutes(app: Express) {
         includes: JSON.parse(t.includes),
         notIncludes: JSON.parse(t.notIncludes),
         whatToBring: t.whatToBring ? JSON.parse(t.whatToBring) : [],
+        gallery: t.gallery ? JSON.parse(t.gallery) : ["", "", "", "", "", ""],
       }));
       res.json(parsed);
     } catch (err) {
