@@ -37,10 +37,8 @@ export default function TourDetail() {
 
   const category = categories.find((c) => c.id === tour.category);
   
-  // Dynamic content from DB with Fallbacks
-  const tourGallery: string[] = tour.gallery 
-    ? JSON.parse(tour.gallery) 
-    : (GALLERY_IMAGES[tour.category] || GALLERY_IMAGES["premium"]);
+  // Dynamic content from DB (already parsed by backend)
+  const tourGallery: string[] = (tour.gallery as any) || (GALLERY_IMAGES[tour.category] || GALLERY_IMAGES["premium"]);
   
   const quote = tour.quote || (QUOTES[tour.category] || QUOTES["premium"]);
 
