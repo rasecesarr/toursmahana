@@ -126,17 +126,16 @@ export function setupRoutes(app: Express) {
     try {
       const tourData = req.body;
       
-      // Sanitizar: solo campos permitidos en la DB
       const toInsert = {
         id: tourData.id,
-        name: tourData.name,
+        name: tourData.name || "",
         category: tourData.category,
-        price: tourData.price,
-        duration: tourData.duration,
-        maxPax: tourData.maxPax,
-        description: tourData.description,
-        shortDescription: tourData.shortDescription,
-        image: tourData.image,
+        price: tourData.price || 0,
+        duration: tourData.duration || "4 horas",
+        maxPax: tourData.maxPax || 1,
+        description: tourData.description || "",
+        shortDescription: tourData.shortDescription || "",
+        image: tourData.image || "/images/placeholder.png",
         difficulty: tourData.difficulty || "Fácil",
         available: tourData.available || "Todo el año",
         meetingPoint: tourData.meetingPoint || "",
@@ -145,11 +144,19 @@ export function setupRoutes(app: Express) {
         whatToBring: JSON.stringify(tourData.whatToBring || []),
       };
       
-      const [newTour] = await db.insert(tours).values(toInsert).returning();
-      res.json(newTour);
-    } catch (err) {
-      console.error("[POST /api/admin/tours] Error:", err);
-      res.status(500).json({ message: "Error al crear el tour. Revisa que el ID sea único." });
+      const results = await db.insert(tours).values(toInsert).returning();
+      
+      if (!results || results.length === 0) {
+        throw new Error("No se devolvió ningún registro después del insert.");
+      }
+      
+      res.json(results[0]);
+    } catch (err: any) {
+      console.error("[CRITICAL] Error en POST /api/admin/tours:", err);
+      res.status(500).json({ 
+        message: "Error al crear el tour",
+        details: err?.message || "Internal Error"
+      });
     }
   });
 
@@ -180,7 +187,6 @@ export function setupRoutes(app: Express) {
       const { id } = req.params;
       const tourData = req.body;
       
-      // Sanitizar: solo campos permitidos en la DB
       const toUpdate: any = {};
       if (tourData.name !== undefined) toUpdate.name = tourData.name;
       if (tourData.category !== undefined) toUpdate.category = tourData.category;
@@ -198,15 +204,23 @@ export function setupRoutes(app: Express) {
       if (tourData.notIncludes) toUpdate.notIncludes = JSON.stringify(tourData.notIncludes);
       if (tourData.whatToBring) toUpdate.whatToBring = JSON.stringify(tourData.whatToBring);
 
-      const [updated] = await db
+      const results = await db
         .update(tours)
         .set(toUpdate)
         .where(eq(tours.id, id))
         .returning();
-      res.json(updated);
-    } catch (err) {
-      console.error(`[PATCH /api/admin/tours/${req.params.id}] Error:`, err);
-      res.status(500).json({ message: "Error al actualizar el tour" });
+
+      if (!results || results.length === 0) {
+        throw new Error(`No se encontró el tour con ID: ${id} para actualizar.`);
+      }
+
+      res.json(results[0]);
+    } catch (err: any) {
+      console.error(`[CRITICAL] Error en PATCH /api/admin/tours/${req.params.id}:`, err);
+      res.status(500).json({ 
+        message: "Error al actualizar el tour",
+        details: err?.message || "Internal Error"
+      });
     }
   });
 
