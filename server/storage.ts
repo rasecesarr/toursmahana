@@ -5,7 +5,10 @@ import { Express } from "express";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadPath = path.resolve(process.cwd(), "client", "public", "uploads");
+    const isProd = process.env.NODE_ENV === "production";
+    const uploadPath = isProd
+      ? path.resolve(process.cwd(), "data", "uploads")
+      : path.resolve(process.cwd(), "client", "public", "uploads");
     
     // Ensure upload directory exists
     if (!fs.existsSync(uploadPath)) {
@@ -35,12 +38,13 @@ export const upload = multer({
 });
 
 export function setupStorage(app: Express) {
-  // Static serving of uploads is already handled by express.static(staticPath) 
-  // in index.ts if staticPath points to the right place. 
-  // We'll also serve /uploads directly for easy access in dev.
-  const uploadPath = path.resolve(process.cwd(), "client", "public", "uploads");
+  const isProd = process.env.NODE_ENV === "production";
+  const uploadPath = isProd
+    ? path.resolve(process.cwd(), "data", "uploads")
+    : path.resolve(process.cwd(), "client", "public", "uploads");
   
   if (!fs.existsSync(uploadPath)) {
+    console.log(`[STORAGE] Creating uploads directory at: ${uploadPath}`);
     fs.mkdirSync(uploadPath, { recursive: true });
   }
 }
