@@ -32,6 +32,8 @@ const formSchema = z.object({
   includes: z.array(z.string()),
   notIncludes: z.array(z.string()),
   whatToBring: z.array(z.string()),
+  quote: z.string().optional(),
+  gallery: z.array(z.string()).length(6),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -55,7 +57,7 @@ export default function TourEditor() {
   const tour = isEditing ? tours.find((t) => t.id === id) : null;
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any,
     defaultValues: {
       id: "",
       name: "",
@@ -72,6 +74,8 @@ export default function TourEditor() {
       includes: [],
       notIncludes: [],
       whatToBring: [],
+      quote: "",
+      gallery: ["", "", "", "", "", ""],
     },
   });
 
@@ -105,7 +109,7 @@ export default function TourEditor() {
     onError: (err) => toast.error(err.message),
   });
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: "image" | "gallery", index?: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -120,7 +124,16 @@ export default function TourEditor() {
       });
       if (!res.ok) throw new Error("Upload failed");
       const data = await res.json();
-      form.setValue("image", data.url);
+      
+      if (field === "image") {
+        form.setValue("image", data.url);
+      } else if (field === "gallery" && index !== undefined) {
+        const current = form.getValues("gallery");
+        const updated = [...current];
+        updated[index] = data.url;
+        form.setValue("gallery", updated);
+      }
+      
       toast.success("Imagen subida");
     } catch (err) {
       toast.error("Error al subir imagen");
@@ -158,7 +171,7 @@ export default function TourEditor() {
         </div>
       </div>
 
-      <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-8">
+      <form onSubmit={form.handleSubmit((data) => mutation.mutate(data as FormData))} className="space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
             {/* General Info */}
@@ -188,8 +201,117 @@ export default function TourEditor() {
                   <Label>Descripción Completa (Storytelling)</Label>
                   <Textarea {...form.register("description")} placeholder="Cuenta la experiencia..." className="min-h-[200px] bg-sand/10 border-sand-dark leading-relaxed" />
                 </div>
+
+                <div className="space-y-2">
+                  <Label>Cita Inspiradora (Inspirational Quote)</Label>
+                  <Input {...form.register("quote")} placeholder="ej. El viento y las olas no esperan..." className="bg-sand/10 border-sand-dark italic" />
+                </div>
               </CardContent>
             </Card>
+
+            {/* Gallery Sections */}
+            <div className="space-y-6">
+              <h3 className="text-xl font-bold text-deep-blue px-2">Galería de Imágenes (6 Slots)</h3>
+              
+              {/* Experience Gallery */}
+              <Card className="border-none shadow-xl rounded-2xl overflow-hidden">
+                <CardHeader className="bg-gold/10 border-b py-4 px-8">
+                  <CardTitle className="text-sm font-bold text-deep-blue">Sección: La Experiencia (2 imágenes)</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[0, 1].map((idx) => (
+                    <div key={idx} className="space-y-4">
+                      <div className="aspect-video bg-sand/30 rounded-xl overflow-hidden border-2 border-dashed border-sand-dark flex items-center justify-center relative group">
+                        {form.watch("gallery")[idx] ? (
+                          <img src={form.watch("gallery")[idx]} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="text-center p-4">
+                            <ImageIcon className="w-8 h-8 text-sand-dark mx-auto mb-1" />
+                            <p className="text-[10px] text-muted-foreground uppercase">Slot {idx + 1}</p>
+                          </div>
+                        )}
+                        <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center bg-black/40 text-white font-bold text-xs">
+                          {form.watch("gallery")[idx] ? "Cambiar" : "Subir"}
+                          <input type="file" className="hidden" onChange={(e) => handleImageUpload(e, "gallery", idx)} accept="image/*" />
+                        </label>
+                      </div>
+                      <Input value={form.watch("gallery")[idx]} onChange={(e) => {
+                        const updated = [...form.getValues("gallery")];
+                        updated[idx] = e.target.value;
+                        form.setValue("gallery", updated);
+                      }} placeholder="URL de la imagen" className="text-[10px] border-sand-dark h-8" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Detail Gallery */}
+              <Card className="border-none shadow-xl rounded-2xl overflow-hidden">
+                <CardHeader className="bg-gold/10 border-b py-4 px-8">
+                  <CardTitle className="text-sm font-bold text-deep-blue">Sección: Detalles (3 imágenes)</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {[2, 3, 4].map((idx) => (
+                    <div key={idx} className="space-y-4">
+                      <div className="aspect-video bg-sand/30 rounded-xl overflow-hidden border-2 border-dashed border-sand-dark flex items-center justify-center relative group">
+                        {form.watch("gallery")[idx] ? (
+                          <img src={form.watch("gallery")[idx]} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="text-center p-2">
+                            <ImageIcon className="w-6 h-6 text-sand-dark mx-auto mb-1" />
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-tighter">Slot {idx + 1}</p>
+                          </div>
+                        )}
+                        <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center bg-black/40 text-white font-bold text-[10px]">
+                          {form.watch("gallery")[idx] ? "Cambiar" : "Subir"}
+                          <input type="file" className="hidden" onChange={(e) => handleImageUpload(e, "gallery", idx)} accept="image/*" />
+                        </label>
+                      </div>
+                      <Input value={form.watch("gallery")[idx]} onChange={(e) => {
+                        const updated = [...form.getValues("gallery")];
+                        updated[idx] = e.target.value;
+                        form.setValue("gallery", updated);
+                      }} placeholder="URL" className="text-[10px] border-sand-dark h-8" />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Footer Gallery */}
+              <Card className="border-none shadow-xl rounded-2xl overflow-hidden">
+                <CardHeader className="bg-gold/10 border-b py-4 px-8">
+                  <CardTitle className="text-sm font-bold text-deep-blue">Sección: Sobre Playa Caracol (1 imagen)</CardTitle>
+                </CardHeader>
+                <CardContent className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="aspect-video bg-sand/30 rounded-xl overflow-hidden border-2 border-dashed border-sand-dark flex items-center justify-center relative group">
+                      {form.watch("gallery")[5] ? (
+                        <img src={form.watch("gallery")[5]} alt="Gallery 5" className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="text-center p-4">
+                          <ImageIcon className="w-8 h-8 text-sand-dark mx-auto mb-1" />
+                          <p className="text-[10px] text-muted-foreground uppercase">Imagen de Ubicación</p>
+                        </div>
+                      )}
+                      <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center bg-black/40 text-white font-bold text-xs">
+                        {form.watch("gallery")[5] ? "Cambiar" : "Subir"}
+                        <input type="file" className="hidden" onChange={(e) => handleImageUpload(e, "gallery", 5)} accept="image/*" />
+                      </label>
+                    </div>
+                    <Input value={form.watch("gallery")[5]} onChange={(e) => {
+                      const updated = [...form.getValues("gallery")];
+                      updated[5] = e.target.value;
+                      form.setValue("gallery", updated);
+                    }} placeholder="URL de la imagen" className="text-[10px] border-sand-dark h-8" />
+                  </div>
+                  <div className="flex items-center">
+                    <p className="text-xs text-muted-foreground italic">
+                      TIP: Esta imagen aparece junto al texto descriptivo de Playa Caracol en la parte inferior de la página.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
 
             {/* Inclusions / Exclusions */}
             <Card className="border-none shadow-xl rounded-2xl overflow-hidden">
@@ -265,7 +387,7 @@ export default function TourEditor() {
                   )}
                   <label className="absolute inset-0 cursor-pointer opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center bg-black/40 text-white font-bold text-sm">
                     Cambiar Imagen
-                    <input type="file" className="hidden" onChange={handleImageUpload} accept="image/*" />
+                    <input type="file" className="hidden" onChange={(e) => handleImageUpload(e, "image")} accept="image/*" />
                   </label>
                 </div>
                 <div className="space-y-2">

@@ -155,6 +155,8 @@ export function setupRoutes(app: Express) {
         includes: JSON.stringify(tourData.includes || []),
         notIncludes: JSON.stringify(tourData.notIncludes || []),
         whatToBring: JSON.stringify(tourData.whatToBring || []),
+        quote: tourData.quote || "",
+        gallery: JSON.stringify(tourData.gallery || []),
       };
       
       const results = await db.insert(tours).values(toInsert).returning();
@@ -230,6 +232,9 @@ export function setupRoutes(app: Express) {
       if (tourData.includes) toUpdate.includes = JSON.stringify(tourData.includes);
       if (tourData.notIncludes) toUpdate.notIncludes = JSON.stringify(tourData.notIncludes);
       if (tourData.whatToBring) toUpdate.whatToBring = JSON.stringify(tourData.whatToBring);
+
+      if (tourData.quote !== undefined) toUpdate.quote = tourData.quote;
+      if (tourData.gallery !== undefined) toUpdate.gallery = JSON.stringify(tourData.gallery);
 
       const results = await db
         .update(tours)

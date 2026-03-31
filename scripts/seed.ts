@@ -1,6 +1,6 @@
 import { db } from "../server/db";
 import { users, categories, tours } from "../server/db/schema";
-import { CATEGORIES, ALL_TOURS } from "../client/src/lib/data";
+import { CATEGORIES, ALL_TOURS, QUOTES, GALLERY_IMAGES } from "../client/src/lib/data";
 import bcrypt from "bcrypt";
 
 async function seed() {
@@ -31,6 +31,19 @@ async function seed() {
 
   // 3. Insert Tours
   for (const tour of ALL_TOURS) {
+    // Determine default quote and gallery based on category if not present
+    const defaultQuote = QUOTES[tour.category] || "Experiencia inolvidable en Panamá.";
+    // Map existing gallery or a default category gallery
+    const defaultGallery = tour.gallery && tour.gallery.length >= 4 
+      ? tour.gallery 
+      : (GALLERY_IMAGES[tour.category] || GALLERY_IMAGES["premium"]);
+    
+    // Ensure we have 6 images (repeat or fill)
+    const gallery6 = [...defaultGallery];
+    while (gallery6.length < 6) {
+      gallery6.push(gallery6[0] || tour.image);
+    }
+
     await db.insert(tours).values({
       id: tour.id,
       name: tour.name,
@@ -47,7 +60,15 @@ async function seed() {
       includes: JSON.stringify(tour.includes || []),
       notIncludes: JSON.stringify(tour.notIncludes || []),
       whatToBring: JSON.stringify(tour.whatToBring || []),
-    }).onConflictDoNothing();
+      quote: defaultQuote,
+      gallery: JSON.stringify(gallery6.slice(0, 6)),
+    }).onConflictDoUpdate({
+      target: tours.id,
+      set: {
+        quote: defaultQuote,
+        gallery: JSON.stringify(gallery6.slice(0, 6)),
+      }
+    });
   }
   console.log("Tours seeded.");
 

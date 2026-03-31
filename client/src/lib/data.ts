@@ -142,6 +142,26 @@ export const CATEGORIES: Category[] = [
   },
 ];
 
+// Storytelling quotes per category (Default seeding)
+export const QUOTES: Record<string, string> = {
+  "surf-kite": "El viento y las olas no esperan. Tú tampoco deberías.",
+  "acuaticas": "El océano tiene secretos que solo revela a quienes se atreven.",
+  "premium": "Algunas experiencias no se describen. Se viven.",
+  "botes-sthamas": "El horizonte es solo el comienzo de la aventura.",
+  "botes-rampage": "Donde termina la costa, empieza lo extraordinario.",
+  "eco-adventures": "La naturaleza panameña guarda tesoros que pocos conocen.",
+};
+
+// Gallery images per category (Default seeding)
+export const GALLERY_IMAGES: Record<string, string[]> = {
+  "surf-kite": [IMAGES.surfAction, IMAGES.kitesurfChame, IMAGES.beachAerial, IMAGES.caracolBeach],
+  "acuaticas": [IMAGES.jetSki, IMAGES.islaOtoque, IMAGES.beachAerial, IMAGES.sunsetCruise],
+  "premium": [IMAGES.whaleWatching, IMAGES.fishingSport, IMAGES.sunsetCruise, IMAGES.islaBonaCoast],
+  "botes-sthamas": [IMAGES.sunsetCruise, IMAGES.islaOtoque, IMAGES.fishingSport, IMAGES.beachAerial],
+  "botes-rampage": [IMAGES.fishingSport, IMAGES.sunsetCruise, IMAGES.islaBonaCoast, IMAGES.beachAerial],
+  "eco-adventures": [IMAGES.cascadaFilipinas, IMAGES.cerroChame, IMAGES.valleAntonWaterfall, IMAGES.beachAerial],
+};
+
 // ============================================================
 // TOUR INTERFACE
 // ============================================================

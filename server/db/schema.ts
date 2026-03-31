@@ -36,6 +36,8 @@ export const tours = sqliteTable("tours", {
   includes: text("includes").notNull(), // JSON array
   notIncludes: text("not_includes").notNull(), // JSON array
   whatToBring: text("what_to_bring"), // JSON array
+  quote: text("quote"), // Cita inspiradora por tour
+  gallery: text("gallery"), // JSON array de 6 URLs de imágenes de detalle
 });
 
 export const insertUserSchema = createInsertSchema(users);

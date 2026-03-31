@@ -7,33 +7,13 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import StickyCTA from "@/components/StickyCTA";
 import Footer from "@/components/Footer";
 import WhatsAppButton from "@/components/WhatsAppButton";
-import { IMAGES, WHATSAPP_URL } from "@/lib/data";
+import { IMAGES, WHATSAPP_URL, QUOTES, GALLERY_IMAGES } from "@/lib/data";
 import { useQuery } from "@tanstack/react-query";
 import { Tour, Category } from "@server/db/schema";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.5 } }),
-};
-
-// Storytelling quotes per category
-const QUOTES: Record<string, string> = {
-  "surf-kite": "El viento y las olas no esperan. Tú tampoco deberías.",
-  "acuaticas": "El océano tiene secretos que solo revela a quienes se atreven.",
-  "premium": "Algunas experiencias no se describen. Se viven.",
-  "botes-sthamas": "El horizonte es solo el comienzo de la aventura.",
-  "botes-rampage": "Donde termina la costa, empieza lo extraordinario.",
-  "eco-adventures": "La naturaleza panameña guarda tesoros que pocos conocen.",
-};
-
-// Gallery images per category
-const GALLERY_IMAGES: Record<string, string[]> = {
-  "surf-kite": [IMAGES.surfAction, IMAGES.kitesurfChame, IMAGES.beachAerial, IMAGES.caracolBeach],
-  "acuaticas": [IMAGES.jetSki, IMAGES.islaOtoque, IMAGES.beachAerial, IMAGES.sunsetCruise],
-  "premium": [IMAGES.whaleWatching, IMAGES.fishingSport, IMAGES.sunsetCruise, IMAGES.islaBonaCoast],
-  "botes-sthamas": [IMAGES.sunsetCruise, IMAGES.islaOtoque, IMAGES.fishingSport, IMAGES.beachAerial],
-  "botes-rampage": [IMAGES.fishingSport, IMAGES.sunsetCruise, IMAGES.islaBonaCoast, IMAGES.beachAerial],
-  "eco-adventures": [IMAGES.cascadaFilipinas, IMAGES.cerroChame, IMAGES.valleAntonWaterfall, IMAGES.beachAerial],
 };
 
 export default function TourDetail() {
@@ -56,8 +36,13 @@ export default function TourDetail() {
   }
 
   const category = categories.find((c) => c.id === tour.category);
-  const quote = QUOTES[tour.category] || QUOTES["premium"];
-  const gallery = GALLERY_IMAGES[tour.category] || GALLERY_IMAGES["premium"];
+  
+  // Dynamic content from DB with Fallbacks
+  const tourGallery: string[] = tour.gallery 
+    ? JSON.parse(tour.gallery) 
+    : (GALLERY_IMAGES[tour.category] || GALLERY_IMAGES["premium"]);
+  
+  const quote = tour.quote || (QUOTES[tour.category] || QUOTES["premium"]);
 
   // Related tours (same category, different tour)
   const related = allTours.filter((t) => t.category === tour.category && t.id !== tour.id).slice(0, 3);
@@ -117,10 +102,10 @@ export default function TourDetail() {
                 <p className="text-muted-foreground leading-relaxed text-lg">{tour.description}</p>
               </motion.div>
 
-              {/* Photo Break 1 */}
+              {/* Photo Break 1 (Indices 0, 1) */}
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={1} className="grid grid-cols-2 gap-3">
-                <img src={gallery[0]} alt="Tour experience" className="rounded-xl h-48 w-full object-cover" />
-                <img src={gallery[1]} alt="Tour experience" className="rounded-xl h-48 w-full object-cover" />
+                <img src={tourGallery[0] || IMAGES.surfAction} alt="Tour experience" className="rounded-xl h-48 w-full object-cover" />
+                <img src={tourGallery[1] || IMAGES.beachAerial} alt="Tour experience" className="rounded-xl h-48 w-full object-cover" />
               </motion.div>
 
               {/* Who Is This For */}
@@ -138,7 +123,7 @@ export default function TourDetail() {
               {/* Mid CTA */}
               <div className="relative rounded-xl overflow-hidden py-10 px-8">
                 <div className="absolute inset-0">
-                  <img src={gallery[2]} alt="" className="w-full h-full object-cover" />
+                  <img src={tourGallery[2] || IMAGES.sunsetCruise} alt="" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-deep-blue/80" />
                 </div>
                 <div className="relative z-10 text-center">
@@ -205,11 +190,11 @@ export default function TourDetail() {
                 </motion.div>
               )}
 
-              {/* Photo Break 2 */}
+              {/* Photo Break 2 (Indices 2, 3, 4) */}
               <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={5} className="grid grid-cols-3 gap-3">
-                <img src={gallery[0]} alt="" className="rounded-xl h-40 w-full object-cover" />
-                <img src={gallery[2]} alt="" className="rounded-xl h-40 w-full object-cover" />
-                <img src={gallery[3]} alt="" className="rounded-xl h-40 w-full object-cover" />
+                <img src={tourGallery[2] || IMAGES.surfAction} alt="" className="rounded-xl h-40 w-full object-cover" />
+                <img src={tourGallery[3] || IMAGES.beachAerial} alt="" className="rounded-xl h-40 w-full object-cover" />
+                <img src={tourGallery[4] || IMAGES.islaOtoque} alt="" className="rounded-xl h-40 w-full object-cover" />
               </motion.div>
 
               {/* About Playa Caracol */}
@@ -225,8 +210,8 @@ export default function TourDetail() {
                     </p>
                   </div>
                   <div className="md:col-span-2">
-                    <img src={IMAGES.radissonAerial} alt="Radisson Riviera" className="rounded-xl w-full h-48 object-cover" />
-                    <p className="text-xs text-muted-foreground mt-2 text-center">Radisson Riviera, Playa Caracol</p>
+                    <img src={tourGallery[5] || IMAGES.radissonAerial} alt="Location" className="rounded-xl w-full h-48 object-cover" />
+                    <p className="text-xs text-muted-foreground mt-2 text-center">{tour.meetingPoint || "Playa Caracol, Panamá"}</p>
                   </div>
                 </div>
               </motion.div>
@@ -368,7 +353,7 @@ export default function TourDetail() {
       {/* ═══════════════ FINAL CTA ═══════════════ */}
       <section className="relative py-20 overflow-hidden">
         <div className="absolute inset-0">
-          <img src={gallery[3]} alt="" className="w-full h-full object-cover" />
+          <img src={tourGallery[3] || IMAGES.beachAerial} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-deep-blue/75" />
         </div>
         <div className="container relative z-10 text-center">
