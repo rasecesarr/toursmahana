@@ -51,13 +51,13 @@ export function setupRoutes(app: Express) {
   /**
    * @openapi
    * /admin/stats:
-     get:
-       summary: "Reporte Estadístico PRO (Admin)"
-       description: "Obtiene estadísticas clave del negocio para el agente de IA: conteos, precios y categorías."
-       security: [{ ApiKeyAuth: [] }]
-       responses:
-         200:
-           description: "Estadísticas generadas correctamente."
+   *   get:
+   *     summary: "Reporte Estadístico PRO (Admin)"
+   *     description: "Obtiene estadísticas clave del negocio para el agente de IA: conteos, precios y categorías."
+   *     security: [{ ApiKeyAuth: [] }]
+   *     responses:
+   *       200:
+   *         description: "Estadísticas generadas correctamente."
    */
   app.get("/api/admin/stats", ensureAdmin, async (req, res) => {
     try {
@@ -87,12 +87,12 @@ export function setupRoutes(app: Express) {
   /**
    * @openapi
    * /admin/health:
-     get:
-       summary: "Diagnóstico de Salud del Sistema"
-       security: [{ ApiKeyAuth: [] }]
-       responses:
-         200:
-           description: "Estado del servidor y almacenamiento."
+   *   get:
+   *     summary: "Diagnóstico de Salud del Sistema"
+   *     security: [{ ApiKeyAuth: [] }]
+   *     responses:
+   *       200:
+   *         description: "Estado del servidor y almacenamiento."
    */
   app.get("/api/admin/health", ensureAdmin, async (req, res) => {
     const uploadPath = path.resolve(process.cwd(), "client", "public", "uploads");
