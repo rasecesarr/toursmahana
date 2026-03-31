@@ -42,7 +42,7 @@ async function startServer() {
   // or client/public in development
   const isProd = process.env.NODE_ENV === "production";
   const publicPath = isProd 
-    ? path.resolve(__dirname, "..", "public") // En dist el public está fuera de server/..
+    ? path.resolve(__dirname, "public") // En dist el public está junto a index.js
     : path.resolve(__dirname, "..", "client", "public");
 
   app.use(express.static(publicPath));

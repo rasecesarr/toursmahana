@@ -4,7 +4,7 @@ import * as schema from "./schema";
 
 console.log("[DB] Initializing SQLite client...");
 const client = createClient({
-  url: "file:sqlite.db",
+  url: process.env.DATABASE_URL || "file:sqlite.db",
 });
 
 console.log("[DB] Drizzle connecting...");
