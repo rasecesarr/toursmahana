@@ -126,6 +126,19 @@ export function setupRoutes(app: Express) {
     try {
       const tourData = req.body;
       
+      // 1. Verificar si la categoría existe para evitar el error de Foreign Key
+      const [catExists] = await db
+        .select()
+        .from(categories)
+        .where(eq(categories.id, tourData.category));
+
+      if (!catExists) {
+        return res.status(400).json({ 
+          message: `La categoría '${tourData.category}' no existe en la base de datos.`,
+          details: "Por favor, selecciona una categoría válida o asegúrate de que el sistema esté inicializado."
+        });
+      }
+
       const toInsert = {
         id: tourData.id,
         name: tourData.name || "",
@@ -188,8 +201,22 @@ export function setupRoutes(app: Express) {
       const tourData = req.body;
       
       const toUpdate: any = {};
-      if (tourData.name !== undefined) toUpdate.name = tourData.name;
-      if (tourData.category !== undefined) toUpdate.category = tourData.category;
+      
+      // Validar categoría
+      if (tourData.category !== undefined) {
+        const [catExists] = await db
+          .select()
+          .from(categories)
+          .where(eq(categories.id, tourData.category));
+
+        if (!catExists) {
+          return res.status(400).json({ 
+            message: `La categoría '${tourData.category}' no es válida.`,
+            details: "Asegúrate de seleccionar una categoría de la lista."
+          });
+        }
+        toUpdate.category = tourData.category;
+      }
       if (tourData.price !== undefined) toUpdate.price = tourData.price;
       if (tourData.duration !== undefined) toUpdate.duration = tourData.duration;
       if (tourData.maxPax !== undefined) toUpdate.maxPax = tourData.maxPax;
