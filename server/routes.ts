@@ -125,9 +125,21 @@ export function setupRoutes(app: Express) {
   app.post("/api/admin/tours", ensureAdmin, async (req, res) => {
     try {
       const tourData = req.body;
-      // Convert arrays back to JSON strings
+      
+      // Sanitizar: solo campos permitidos en la DB
       const toInsert = {
-        ...tourData,
+        id: tourData.id,
+        name: tourData.name,
+        category: tourData.category,
+        price: tourData.price,
+        duration: tourData.duration,
+        maxPax: tourData.maxPax,
+        description: tourData.description,
+        shortDescription: tourData.shortDescription,
+        image: tourData.image,
+        difficulty: tourData.difficulty || "Fácil",
+        available: tourData.available || "Todo el año",
+        meetingPoint: tourData.meetingPoint || "",
         includes: JSON.stringify(tourData.includes || []),
         notIncludes: JSON.stringify(tourData.notIncludes || []),
         whatToBring: JSON.stringify(tourData.whatToBring || []),
@@ -136,8 +148,8 @@ export function setupRoutes(app: Express) {
       const [newTour] = await db.insert(tours).values(toInsert).returning();
       res.json(newTour);
     } catch (err) {
-      console.error("Error creating tour:", err);
-      res.status(500).json({ message: "Error al crear el tour" });
+      console.error("[POST /api/admin/tours] Error:", err);
+      res.status(500).json({ message: "Error al crear el tour. Revisa que el ID sea único." });
     }
   });
 
@@ -168,7 +180,20 @@ export function setupRoutes(app: Express) {
       const { id } = req.params;
       const tourData = req.body;
       
-      const toUpdate: any = { ...tourData };
+      // Sanitizar: solo campos permitidos en la DB
+      const toUpdate: any = {};
+      if (tourData.name !== undefined) toUpdate.name = tourData.name;
+      if (tourData.category !== undefined) toUpdate.category = tourData.category;
+      if (tourData.price !== undefined) toUpdate.price = tourData.price;
+      if (tourData.duration !== undefined) toUpdate.duration = tourData.duration;
+      if (tourData.maxPax !== undefined) toUpdate.maxPax = tourData.maxPax;
+      if (tourData.description !== undefined) toUpdate.description = tourData.description;
+      if (tourData.shortDescription !== undefined) toUpdate.shortDescription = tourData.shortDescription;
+      if (tourData.image !== undefined) toUpdate.image = tourData.image;
+      if (tourData.difficulty !== undefined) toUpdate.difficulty = tourData.difficulty;
+      if (tourData.available !== undefined) toUpdate.available = tourData.available;
+      if (tourData.meetingPoint !== undefined) toUpdate.meetingPoint = tourData.meetingPoint;
+      
       if (tourData.includes) toUpdate.includes = JSON.stringify(tourData.includes);
       if (tourData.notIncludes) toUpdate.notIncludes = JSON.stringify(tourData.notIncludes);
       if (tourData.whatToBring) toUpdate.whatToBring = JSON.stringify(tourData.whatToBring);
@@ -180,7 +205,7 @@ export function setupRoutes(app: Express) {
         .returning();
       res.json(updated);
     } catch (err) {
-      console.error("Error updating tour:", err);
+      console.error(`[PATCH /api/admin/tours/${req.params.id}] Error:`, err);
       res.status(500).json({ message: "Error al actualizar el tour" });
     }
   });
