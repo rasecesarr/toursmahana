@@ -39,6 +39,9 @@ export default function TourDetail() {
   
   // Dynamic content from DB (already parsed by backend)
   const tourGallery: string[] = (tour.gallery as any) || (GALLERY_IMAGES[tour.category] || GALLERY_IMAGES["premium"]);
+  const tourIncludes: string[] = (tour.includes as any) || [];
+  const tourNotIncludes: string[] = (tour.notIncludes as any) || [];
+  const tourWhatToBring: string[] = (tour.whatToBring as any) || [];
   
   const quote = tour.quote || (QUOTES[tour.category] || QUOTES["premium"]);
 
@@ -149,7 +152,7 @@ export default function TourDetail() {
                       <Check className="w-5 h-5 text-green-600" /> Incluye
                     </h3>
                     <ul className="space-y-2">
-                      {tour.includes.map((item, i) => (
+                      {tourIncludes.map((item, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                           <Check className="w-4 h-4 text-green-600 mt-0.5 shrink-0" />
                           {item}
@@ -162,7 +165,7 @@ export default function TourDetail() {
                       <X className="w-5 h-5 text-red-500" /> No Incluye
                     </h3>
                     <ul className="space-y-2">
-                      {tour.notIncludes.map((item, i) => (
+                      {tourNotIncludes.map((item, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
                           <X className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
                           {item}
@@ -174,11 +177,11 @@ export default function TourDetail() {
               </motion.div>
 
               {/* What to Bring */}
-              {tour.whatToBring && tour.whatToBring.length > 0 && (
+              {tourWhatToBring && tourWhatToBring.length > 0 && (
                 <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} custom={4} className="bg-white rounded-xl p-8 border border-sand-dark">
                   <h2 className="text-2xl font-bold text-deep-blue mb-4" style={{ fontFamily: "var(--font-display)" }}>¿Qué Llevar?</h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {tour.whatToBring.map((item, i) => (
+                    {tourWhatToBring.map((item, i) => (
                       <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
                         <div className="w-2 h-2 rounded-full bg-gold shrink-0" />
                         {item}

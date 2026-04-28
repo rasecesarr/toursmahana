@@ -61,10 +61,10 @@ export const IMAGES = {
 };
 
 // Constants
-export const WHATSAPP_NUMBER = "+5076988-4566";
-export const WHATSAPP_URL = `https://wa.me/5076988456`;
-export const EMAIL = "info@toursmahana.com";
-export const PHONE = "+507 6988-4566";
+export const WHATSAPP_NUMBER = "+507 6535-5523";
+export const WHATSAPP_URL = `https://wa.me/50765355523`;
+export const EMAIL = "ventas@toursmahana.com";
+export const PHONE = "+507 6535-5523";
 export const INSTAGRAM = "https://instagram.com/toursmahana";
 export const FACEBOOK = "https://facebook.com/toursmahana";
 export const LOCATION = "Playa Caracol, Punta Chame, Panamá";
